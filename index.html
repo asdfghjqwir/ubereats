@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドブ捨てマネー報告書：Uber Eats送料編</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #00F5FF; --accent-pink: #FF007F; --yellow: #FFD700; --black: #1A1A1A; }
+        body { background-color: var(--bg-color); font-family: 'M PLUS Rounded 1c', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; transition: background-color 0.5s ease; box-sizing: border-box; }
+        #app { width: 100%; max-width: 380px; background: #fff; border: 5px solid var(--black); border-radius: 30px; box-shadow: 10px 10px 0px var(--black); padding: 30px 20px; text-align: center; box-sizing: border-box; }
+        #quiz, #loading, #result { display: none; }
+        #quiz { display: block; }
+        h1 { font-size: 1.4rem; margin-bottom: 25px; line-height: 1.4; color: var(--black); }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { font-size: 0.8rem; font-weight: 900; color: var(--black); margin-left: 5px; }
+        select, input[type="number"] { width: 100%; padding: 15px; border: 4px solid var(--black); border-radius: 15px; margin-top: 8px; font-size: 1.1rem; font-weight: 900; box-sizing: border-box; outline: none; background: #fff; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .result-card { background: #fff; border: 4px solid var(--black); border-radius: 25px; padding: 40px 15px 20px; margin-bottom: 25px; position: relative; }
+        .result-label { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--yellow); color: var(--black); font-size: 0.9rem; padding: 6px 25px; border-radius: 50px; border: 4px solid var(--black); white-space: nowrap; box-shadow: 4px 4px 0px var(--black); }
+        #result-rank { font-size: 1.4rem; font-weight: 900; margin-bottom: 10px; color: #333; }
+        .total-loss { font-size: 2.8rem; font-weight: 900; color: var(--accent-pink); line-height: 1.1; margin: 15px 0; text-shadow: 2px 2px 0px var(--black); word-break: break-all; }
+        .section-box { border-top: 4px solid var(--black); margin: 20px 0 10px; padding-top: 15px; text-align: left; }
+        .tag { color: #fff; font-size: 0.7rem; padding: 3px 12px; border-radius: 8px; border: 2px solid var(--black); display: inline-block; margin-bottom: 8px; font-weight: 900; }
+        .desc { font-size: 0.85rem; font-weight: 900; color: var(--black); line-height: 1.5; }
+        .solution-list { list-style: none; padding: 0; margin: 5px 0 0; }
+        .solution-list li { font-size: 0.85rem; font-weight: 900; margin-bottom: 5px; position: relative; padding-left: 20px; color: var(--black); }
+        .solution-list li::before { content: "✔"; position: absolute; left: 0; color: var(--accent-pink); }
+        .share-btn { width: 100%; padding: 16px; border: 4px solid var(--black); border-radius: 50px; font-weight: 900; font-size: 1.1rem; cursor: pointer; background: #000; color: #fff; box-shadow: 0 6px 0px #444; transition: 0.1s; margin-bottom: 15px; display: block; text-decoration: none; font-family: inherit; box-sizing: border-box; text-align: center; }
+        .share-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px #444; }
+        .physics-button { width: 100%; padding: 14px; border: 4px solid var(--black); border-radius: 20px; font-weight: 900; cursor: pointer; background: #FF9900; color: #000; box-shadow: 0 8px 0px var(--black); transition: 0.1s; display: block; text-decoration: none; box-sizing: border-box; text-align: center; margin-bottom: 15px; font-size: 0.95rem; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .physics-button:active { transform: translateY(6px); box-shadow: 0 2px 0px var(--black); }
+        .btn-main { width: 100%; padding: 18px; border: 4px solid var(--black); border-radius: 50px; font-weight: 900; font-size: 1.1rem; background: var(--yellow); box-shadow: 0 6px 0px var(--black); cursor: pointer; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--black); }
+        #loading { padding: 40px 0; }
+        #loading h2 { font-size: 1.2rem; color: var(--black); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .sub-note { font-size: 0.75rem; font-weight: 900; color: var(--black); margin-top: -10px; margin-bottom: 20px; opacity: 0.8; }
+        .reset-btn { width: 100%; padding: 14px; border: 4px solid var(--black); border-radius: 50px; font-weight: 900; font-size: 1rem; background: #eee; box-shadow: 0 4px 0px var(--black); cursor: pointer; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .reset-btn:active { transform: translateY(3px); box-shadow: 0 1px 0px var(--black); }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="quiz">
+        <h1>🛵 ドブ捨てマネー報告書<br><span style="font-size:0.8em;color:var(--accent-pink);">〜Uber Eats送料編〜<br>送料だけNISAで運用していたら？</span></h1>
+        <div class="input-group">
+            <label>現在の年齢（18歳〜80歳）</label>
+            <input type="number" id="age" inputmode="numeric" min="18" max="80" placeholder="例: 28">
+        </div>
+        <div class="input-group">
+            <label>週に何回注文する？</label>
+            <select id="frequency">
+                <option value="1">週1回（自制できてる方）</option>
+                <option value="3" selected>週3回（Uber依存予備軍）</option>
+                <option value="5">週5回（もはや外食やめた人）</option>
+                <option value="7">毎日（Uberが家族）</option>
+                <option value="14">1日2回（配達員と友達）</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>1回あたりの送料は？</label>
+            <select id="fee">
+                <option value="150">約150円（運がいい日）</option>
+                <option value="300" selected>約300円（普通の日）</option>
+                <option value="500">約500円（雨の日・遠い店）</option>
+                <option value="800">約800円（どうしても欲しい日）</option>
+            </select>
+        </div>
+        <button class="btn-main" onclick="diagnose()">💸 送料損失を査定する</button>
+    </div>
+
+    <div id="loading">
+        <h2>🛵 送料の暴力を計算中...</h2>
+    </div>
+
+    <div id="result">
+        <div class="result-card">
+            <div class="result-label">診断結果</div>
+            <div id="result-rank">---</div>
+            <div class="total-loss" id="totalLossDisplay">¥0</div>
+            <div class="sub-note">※送料だけ・87歳まで続けた場合（年利5%複利）</div>
+            <div class="section-box">
+                <span class="tag" style="background:var(--bg-color);color:var(--black);">余計なお世話</span>
+                <div class="desc" id="jokeText" style="font-style:italic;"></div>
+            </div>
+            <div class="section-box" style="background:#f9f9f9;padding:15px;border-radius:15px;border:3px solid var(--black);">
+                <span class="tag" style="background:var(--black);color:#fff;">脱出コマンド</span>
+                <ul class="solution-list" id="solutions"></ul>
+            </div>
+        </div>
+        <button class="share-btn" onclick="shareX()">🐦 Xで恥をシェア</button>
+        <a id="amazonLink" href="#" target="_blank" class="physics-button">📦 Amazonで自炊グッズをゲット</a>
+        <button class="reset-btn" onclick="resetApp()">🔄 もう一度診断する</button>
+    </div>
+</div>
+
+<script>
+const jokes = [
+    "送料って「料理代」じゃないですよ。空気代ですよ。空気にお金払ってますよ。",
+    "雨の日に500円の送料払って届いたもの、コンビニで買えば送料ゼロでしたよ。",
+    "Uber Eatsの配達員さん、あなたの怠惰で食べてます。どちらが賢いですか？",
+    "「料理するの面倒」という気持ち、その気持ちに毎回300円払ってるんですよ。",
+    "送料無料キャンペーンを喜ぶ前に、その料理代が割高になってることに気づいてますか？",
+    "注文するたびにスマホに「また来たか」と思われてますよ。",
+    "Uber One会員になって「元取れた」と思ってる人、そもそも注文しなければ全額得でしたよ。",
+    "深夜に送料500円払った経験、翌朝後悔しませんでしたか？",
+    "配達員が来るまでの時間、スーパーで買って帰れましたよ。",
+    "「時間を買ってる」と言いますけど、その時間で何をしてましたか？スマホですか？",
+    "送料を気にせず頼める人、お金の感覚が壊れてる可能性がありますよ。",
+    "まとめて注文すれば送料1回で済みましたよ。なぜ毎日頼むんですか？",
+    "自炊したら送料ゼロどころか、食費全体が半分になりますよ。",
+    "Uber Eatsのアプリを開く指、貯金アプリに向けてみてはどうですか？",
+    "送料300円、毎日払ったら年間10万円超ですよ。気づいてましたか？",
+    "「健康的なものを頼んだ」と言いますけど、スーパーで買えばもっと安くて新鮮ですよ。",
+    "配達の袋、毎回捨ててますよね。お金と資源を同時にドブに捨ててますよ。",
+    "送料サーチャージ・小額注文手数料・サービス料、全部読んでから注文してますか？",
+    "Uber Eatsを使う頻度と貯金額、比例してますか？反比例してませんか？",
+    "その送料をNISAに入れ続けた人と、Uber Eatsに払い続けた人、20年後に差がつきますよ。"
+];
+
+const escapeCommands = [
+    "週の注文回数を今より1回減らすだけでいい",
+    "まとめ買いして冷凍食品を常備する",
+    "Uber Eatsを開く前に近くのスーパーを検索する",
+    "送料を毎回メモして月末に合計を見る",
+    "電子レンジで作れる簡単レシピを3つだけ覚える",
+    "注文したくなったらコンビニに歩いて行く（運動にもなる）"
+];
+
+function diagnose() {
+    const age = parseInt(document.getElementById('age').value);
+    const freq = parseInt(document.getElementById('frequency').value);
+    const fee = parseInt(document.getElementById('fee').value);
+
+    if (isNaN(age) || age < 18 || age > 80) { alert('18歳から80歳の間で入力してください。'); return; }
+
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+
+        const monthly = freq * 4.3 * fee;
+        const avgLife = 87;
+        const yearsLeft = Math.max(1, avgLife - age);
+        const r = 0.05 / 12;
+        const n = yearsLeft * 12;
+        const totalLoss = monthly * (Math.pow(1 + r, n) - 1) / r;
+
+        let displayMoney = totalLoss >= 100000000
+            ? (totalLoss / 100000000).toFixed(1) + "億円"
+            : Math.floor(totalLoss / 10000).toLocaleString() + "万円";
+
+        document.getElementById('totalLossDisplay').innerText = "¥" + displayMoney;
+
+        let rank = "", bgColor = "";
+        if (totalLoss >= 100000000) { rank = "🔴 Uber Eats殿堂入り廃人"; bgColor = "#FF007F"; }
+        else if (totalLoss >= 50000000) { rank = "🟣 配達員を養う貴族"; bgColor = "#6A0DAD"; }
+        else if (totalLoss >= 20000000) { rank = "🟠 送料という名の税金納税者"; bgColor = "#FF4500"; }
+        else if (totalLoss >= 5000000) { rank = "🔵 怠惰の優良顧客"; bgColor = "#0055AA"; }
+        else { rank = "🟢 まだ間に合う予備軍"; bgColor = "#2E7D32"; }
+
+        document.body.style.backgroundColor = bgColor;
+        document.getElementById('result-rank').innerText = rank;
+        document.getElementById('jokeText').innerText = jokes[Math.floor(Math.random() * jokes.length)];
+
+        const solList = document.getElementById('solutions');
+        solList.innerHTML = "";
+        const shuffled = [...escapeCommands].sort(() => 0.5 - Math.random());
+        shuffled.slice(0, 3).forEach(cmd => {
+            const li = document.createElement('li');
+            li.innerText = cmd;
+            solList.appendChild(li);
+        });
+
+        const keywords = ["電子レンジ 調理器具", "作り置き 容器", "弁当箱 おすすめ", "冷凍保存 容器"];
+        const searchWord = encodeURIComponent(keywords[Math.floor(Math.random() * keywords.length)]);
+        document.getElementById('amazonLink').href = "https://www.amazon.co.jp/s?k=" + searchWord + "&tag=aicheck-22";
+    }, 1200);
+}
+
+function shareX() {
+    const rank = document.getElementById('result-rank').innerText;
+    const loss = document.getElementById('totalLossDisplay').innerText;
+    const text = encodeURIComponent("【ドブ捨てマネー報告書🛵Uber Eats送料編】\n送料だけを払い続けた結果、生涯損失（新NISA複利換算）は「" + loss + "」でした…💸\n\nランク：" + rank + "\n\n#ドブ捨てマネー報告書 #UberEats #NISA");
+    window.open("https://twitter.com/intent/tweet?text=" + text, '_blank');
+}
+
+function resetApp() {
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('quiz').style.display = 'block';
+    document.body.style.backgroundColor = '#00F5FF';
+}
+</script>
+</body>
+</html>
